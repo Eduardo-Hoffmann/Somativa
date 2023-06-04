@@ -1,11 +1,10 @@
-use formativahogwarts;
+use formativaHogwarts;
 
 alter table usuarios
-ADD column foto_url varchar (1000) not null;
+add column foto_url varchar (1000) not null;
 
 alter table usuarios
 add column telefone varchar (30) not null;
-
 
 create table tarefas (
 id_Tarefas bigint not null auto_increment,
@@ -66,10 +65,44 @@ foreign key (status_tarefaFK) references status_tarefa (id_status_tarefa),
 foreign key (id_andamentoTarefasFK) references andamento_tarefas (id_andamentoTarefas)
 );
 
+select *from tarefas; 
 
-select * from tarefas where id_Tarefas not in
-(select id_Tarefas from tarefas t join andamento_tarefas at on t.id_Tarefas = at.id_TarefaFK);
+select * from tarefas as tf
+inner join status_tarefa as st on st.id = tf.statusFK
+inner join usuarios as us on us.id = tf.usuaririosFK
+where st.progressoFK<2;
 
+select lc.nome, count(tf.id) as todas_as_tarefa  from tarefa as tf
+inner join locais as lc on lc.id = tf.localfk
+group by lc.nome
+having todas_as_tarefa > 1;
 
+select * from tarefa as tf
+inner join status_tarefa as st on st.id = tf.statusFK
+inner join locais as lc on lc.id = tf.localFK
+inner join eventos as ev on lc.id = ev.localFk
+where st.etapas = '0';
 
+select lc.nome, count(tf.id) as todas_as_tarefa from tarefa as tf
+inner join locais as lc on lc.id = tf.localFK
+group by lc.nome;
 
+select lc.nome, count(tf.id) total_tarefa_completas from tarefa as tf
+inner join statustarefa as st on st.id = tf.statusFK
+inner join locais as lc on lc.id = tf.localFK
+inner join eventos as ev on lc.id = ev.localFk
+where st.etapas = '1' and progressoFK = '4' 
+group by lc.nome;
+
+select us.nome, count(tf.id) as todas_as_tarefa from tarefa as tf
+inner join usuarios as us on us.id = tf.responsavelFK
+group by us.nome;
+
+select us.nome, count(tf.id) tarefa_concluidas  from tarefa as tf
+inner join usuarios as us on us.id = tf.responsavelFK
+inner join statustarefa as st on st.id = tf.statusFK
+where st.etapas = '1' and progressoFK = '4' 
+group by us.nome;
+
+select month(t.data_abertura) as mes, l.local_nome, count(t.id_Tarefas) 
+AS total_tarefas from tarefas t join locais l ON t.localFK = l.id group by mes, l.local_nome;
